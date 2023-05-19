@@ -1,4 +1,4 @@
-import axios from "./interceptor/http"
+import axios from "./interceptor//http"
 
 const BASE_URL = "/v1/recipe"
 
@@ -111,6 +111,19 @@ export default {
     },
 
     /**
+     * 搜索口味物料
+     * @param data
+     * @returns {AxiosPromise}
+     */
+    search_taste_index: (data) => {
+        return axios({
+            url: BASE_URL + "/taste/materials",
+            method: "post",
+            data
+        })
+    },
+
+    /**
      * 获取物料
      * @param data
      * @returns {AxiosPromise}
@@ -183,6 +196,19 @@ export default {
      delete_taste: (data) => {
         return axios({
             url: BASE_URL + "/delete/taste",
+            method: "post",
+            data
+        })
+    },
+
+    /**
+     * 删除
+     * @param data
+     * @returns {AxiosPromise}
+     */
+    check_taste: (data) => {
+        return axios({
+            url: BASE_URL + "/check/taste",
             method: "post",
             data
         })

@@ -7,7 +7,7 @@
       </el-col>
       <el-col :span="12" class="text-right">
         <!-- 添加权限按钮 -->
-        <el-button size="medium" type="indigo" @click="handleAdd" >{{ $t('RECIPEMANAGEMENT.CREATERECIPE') }}</el-button>
+        <el-button size="medium" type="indigo" @click="handleAdd">{{ $t('RECIPEMANAGEMENT.CREATERECIPE') }}</el-button>
         <el-button size="medium" type="border" @click="showSendToMQTTVisity">下发配置</el-button>
       </el-col>
     </el-row>
@@ -135,7 +135,7 @@
           <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_MATERIAL.MATERIAL')" prop="Matiral">
             <!-- <el-input v-model="formTasteData.Matiral"  @keyup.native="searchMatrialList()"></el-input> -->
             <el-select v-model="formMertialsData.Name" filterable  allow-create  @change="selectQueryMaterial" placeholder="请输入或选择">
-                <el-option v-for="(item,index) in materialList" :value="index" :key="item.Id" :label="item.Name">{{ item.Name }}{{ item.Dosage }}{{ item.Unit }}{{ item.WaterLine }} ML</el-option>
+                <el-option v-for="(item,index) in materialList" :value="index" :key="item.Id">{{ item.Name }}{{ item.Dosage }}{{ item.Unit }}{{ item.WaterLine }} ML</el-option>
             </el-select>
           </el-form-item>
           <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_MATERIAL.DOSAGE')" prop="Dosage">
@@ -161,6 +161,7 @@
       </el-form>
     </el-dialog>
 
+
     <el-dialog class="el-dark-dialog el-dark-input"
                :visible.sync="createTasteDialogVisible"
                @closed="createTasteDialogVisible = false"
@@ -175,37 +176,69 @@
       >
           <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_TASTE.TASTE')" prop="Taste">
             <el-select v-model="formTasteData.Taste" filterable   allow-create  @change="selectTasteQuery" placeholder="请输入或选择">
-                <el-option v-for="(item,index) in tasteList" :value="index" :key="index" :label="item.Name"></el-option>
+                <el-option v-for="(item,index) in tasteList" :value="index" :key="index" >{{ item.Name }} {{ item.TasteId }}</el-option>
             </el-select>
           </el-form-item>
           <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_TASTE.TASTEID')" prop="TasteId">
             <el-input v-model="formTasteData.TasteId" :disabled="tasteIdIsDisabled"></el-input>
           </el-form-item>
-          <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_TASTE.MATRIAL')" prop="MaterialsName">
-            <el-select v-model="formTasteData.Material" filterable   allow-create  @change="selectMaterialOnTaste" placeholder="请输入或选择">
+          <!-- <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_TASTE.MATRIAL')" prop="MaterialsName">
+            <el-select v-model="formTasteData.Material" filterable   allow-create  @change="selectMaterialOnTaste" placeholder="请输入或选择" :disabled="tasteMaterialDisabled">
+                <el-option v-for="(item,index) in materialList" :value="index" :key="item.Id">{{ item.Material }}{{ item.Dosage }}{{ item.Unit }}{{ item.WaterLine }} ML</el-option>
+            </el-select>
+          </el-form-item> -->
+
+          <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_TASTE.MATRIAL')" style="width: 100%">
+          <div>
+            <el-button type="save" @click="handleTasteMaterialsCreate" :disabled="tasteMaterilsCrateDisabled">添加口味物料</el-button>
+          </div>
+          <el-tag :key="tag" v-for="(tag,index) in tasteMaterialDynamicTags" closable :disable-transitions="false" @close="handleTasteMaterialClose(tag,index)">{{tag}}</el-tag>
+        </el-form-item>
+          
+        <div style="display: flex;justify-content: center">
+          <el-button type="cancel" @click="onTasteDialogCancel">{{ $t('SYSTEM_MANAGEMENT.CANCEL') }}</el-button>
+          <el-button type="save" @click="onTasteDialogSubmit">{{ $t('SYSTEM_MANAGEMENT.CONFIRM') }}</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
+
+    <el-dialog class="el-dark-dialog el-dark-input"
+               :visible.sync="createTasteMaterialsDialogVisible"
+               @closed="createTasteMaterialsDialogVisible = false"
+               :close-on-click-modal="false"
+               :before-close="onTasteMaterialDialogCancel"
+               :title="$t('RECIPEMANAGEMENT.ADDMATERIAL')"
+               width="600px">
+      <el-form :model="formTasteMaterialsData"
+               label-position="right"
+               label-width="140px"
+               :inline="false"
+      >
+          <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_MATERIAL.MATERIAL')" prop="Matiral">
+            <!-- <el-input v-model="formTasteData.Matiral"  @keyup.native="searchMatrialList()"></el-input> -->
+            <el-select v-model="formTasteMaterialsData.Name" filterable  allow-create  @change="selectMaterialOnTaste" placeholder="请输入或选择">
                 <el-option v-for="(item,index) in materialList" :value="index" :key="item.Id">{{ item.Name }}{{ item.Dosage }}{{ item.Unit }}{{ item.WaterLine }} ML</el-option>
             </el-select>
           </el-form-item>
-          
-          <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_TASTE.DOSAGE')" prop="Dosage">
-            <el-input-number v-model="formTasteData.Dosage" :disabled="dosageIsDisabled"></el-input-number>
+          <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_MATERIAL.DOSAGE')" prop="Dosage">
+            <el-input-number v-model="formTasteMaterialsData.Dosage" :disabled="tasteMaterialDosageDisabled">g/克</el-input-number>
           </el-form-item>
-          <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_TASTE.UNIT')" prop="Unit">
-            <el-input v-model="formTasteData.Unit" :disabled="unitIsDisabled"></el-input>
+          <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_MATERIAL.UNIT')" prop="Unit">
+            <el-input v-model="formTasteMaterialsData.Unit" :disabled="tasteMaterialUnitDisabled"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_TASTE.ADDSOUPWATERLINE')" prop="WaterLine">
-            <el-input-number v-model="formTasteData.WaterLine" :disabled="waterLineIsDisabled"></el-input-number> ML
+        <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_MATERIAL.ADDSOUPWATERLINE')" prop="WaterLine">
+            <el-input-number v-model="formTasteMaterialsData.WaterLine" :disabled="tasteMaterialWaterLineIsDisabled"></el-input-number> ML
         </el-form-item>
-        <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_TASTE.STATION')" style="width: 100%">
-          <el-select style="width: 100%"  :placeholder="$t('RECIPEMANAGEMENT.ADD_TASTE.STATION')" v-model="formTasteData.Station" :disabled="stationIsDisabled">
+        <el-form-item :label="$t('RECIPEMANAGEMENT.ADD_MATERIAL.STATION')" style="width: 100%" prop="Station">
+          <el-select style="width: 100%"  :placeholder="$t('RECIPEMANAGEMENT.ADD_MATERIAL.STATION')" v-model="formTasteMaterialsData.Station" :disabled="tasteMaterialStationDisabled">
                 <el-option label="所有工位" value="所有工位">所有工位</el-option>
                 <el-option label="鲜料工位" value="鲜料工位">鲜料工位</el-option>
                 <el-option label="传锅工位" value="传锅工位">传锅工位</el-option>
               </el-select>
         </el-form-item>
         <div style="display: flex;justify-content: center">
-          <el-button type="cancel" @click="onTasteDialogCancel">{{ $t('SYSTEM_MANAGEMENT.CANCEL') }}</el-button>
-          <el-button type="save" @click="onTasteDialogSubmit">{{ $t('SYSTEM_MANAGEMENT.CONFIRM') }}</el-button>
+          <el-button type="cancel" @click="onTasteMaterialDialogCancel">{{ $t('SYSTEM_MANAGEMENT.CANCEL') }}</el-button>
+          <el-button type="save" @click="onTasteMaterialDialogSubmit">{{ $t('SYSTEM_MANAGEMENT.CONFIRM') }}</el-button>
         </div>
       </el-form>
     </el-dialog>
@@ -234,7 +267,7 @@
         </el-form-item>
 
         <div style="display: flex;justify-content: center">
-          <el-button type="save" @click="onSendToMQTT">下发</el-button>
+          <el-button type="save" @click="onSendToMQTT" :loading="onSendToMQTTLoading">下发</el-button>
         </div>
 
       </el-form>
@@ -267,11 +300,44 @@ export default {
 
       },
       formData: {
-        TasteArr: [],
+        TasteArr: [{
+          // CreateAt: 0,
+          // DeleteAt:"",
+          // Dosage:0,
+          // Id:"",
+          // IsDel:false,
+          // Material:"",
+          // Name:"",
+          // PotTypeId:"",
+          // RecipeID:"",
+          // Station:"",
+          // TasteId:"",
+          // Unit:"",
+          // UpdateAt:"",
+          // WaterLine:0,
+		    
+	}
+],
         MaterialArr: [],
+        
       },
       formMertialsData: {},
-      formTasteData: {},
+      formTasteData: {
+        TasteMaterialArr:[ 
+          //   {
+			    //            Dosage: 0,
+          //            Id: "",
+          //            Name: "",
+          //            PotTypeId: "",
+          //            RecipeID: "",
+          //            Station: "",
+          //            Unit: "",
+          //            WaterLine: 0,
+          //            Resource: ""
+		      //  }
+         ]
+      },
+      formTasteMaterialsData: {},
       total: 10,
       params: {
         total: 0,
@@ -292,15 +358,19 @@ export default {
       createMaterialsDialogVisible: false,
       createTasteDialogVisible: false,
       dialogSendToMQVisible: false,
+      createTasteMaterialsDialogVisible: false,
       currentWaterLine: 0,
       dynamicTags: [],
       tasteDynamicTags: [],
+      tasteMaterialDynamicTags: [],
       Materials: [],
       Taste: [],
+      TasteMaterials: [],
       projectOptions: [],
       assetList: [],
       deviceList: [],
       sendToMQTTData: [],
+      onSendToMQTTLoading: false,
       tasteIdIsDisabled: false,
       dosageIsDisabled: false,
       unitIsDisabled: false,
@@ -309,7 +379,12 @@ export default {
       materialDosageDisabled: false,
       materialUnitDisabled: false,
       materialWaterLineIsDisabled: false,
-      materialStationDisabled: false
+      materialStationDisabled: false,
+      tasteMaterialDosageDisabled: false,
+      tasteMaterialUnitDisabled: false,
+      tasteMaterialWaterLineIsDisabled: false,
+      tasteMaterialStationDisabled: false,
+      tasteMaterilsCrateDisabled: false
     }
   },
   mounted() {
@@ -327,45 +402,56 @@ export default {
 
     selectMaterialOnTaste(index) {
       if (this.materialList[index] === 'undefined' || this.materialList[index] == null || this.materialList[index] === '') {
-          this.dosageIsDisabled = false
-          this.unitIsDisabled = false
-          this.waterLineIsDisabled = false
-          this.stationIsDisabled = false
-          this.formTasteData.Material = ''
-          this.formTasteData.Dosage = 0
-          this.formTasteData.Unit = ''
-          this.formTasteData.WaterLine = 0
-          this.formTasteData.Station = ''
-          this.formTasteData.MaterialId = ''
-          this.formTasteData.Action = ""
+          this.tasteMaterialDosageDisabled = false
+          this.tasteMaterialUnitDisabled = false
+          this.tasteMaterialWaterLineIsDisabled = false
+          this.tasteMaterialStationDisabled = false
+          this.formTasteMaterialsData.Dosage = 0
+          this.formTasteMaterialsData.WaterLine = 0
+          this.formTasteMaterialsData.Action = ''
+          this.formTasteMaterialsData.PotTypeId = ''
+          this.formTasteMaterialsData.Id = ''
       }else{
-          this.formTasteData.Material = this.materialList[index].Name
-          this.formTasteData.Dosage = this.materialList[index].Dosage
-          this.formTasteData.Unit = this.materialList[index].Unit
-          this.formTasteData.WaterLine = this.materialList[index].WaterLine
-          this.formTasteData.Station = this.materialList[index].Station
-          this.formTasteData.MaterialId = this.materialList[index].Id
-          this.formTasteData.Action = "GET"
-          this.dosageIsDisabled = true
-          this.unitIsDisabled = true
-          this.waterLineIsDisabled = true
-          this.stationIsDisabled = true
+          this.formTasteMaterialsData.Name = this.materialList[index].Name
+          this.formTasteMaterialsData.Dosage = this.materialList[index].Dosage
+          this.formTasteMaterialsData.Unit = this.materialList[index].Unit
+          this.formTasteMaterialsData.WaterLine = this.materialList[index].WaterLine
+          this.formTasteMaterialsData.Station = this.materialList[index].Station
+          this.formTasteMaterialsData.PotTypeId = this.materialList[index].PotTypeId
+          this.formTasteMaterialsData.Id = this.materialList[index].Id
+          this.formTasteMaterialsData.Action = "GET"
+          this.tasteMaterialDosageDisabled = true
+          this.tasteMaterialUnitDisabled = true
+          this.tasteMaterialWaterLineIsDisabled = true
+          this.tasteMaterialStationDisabled = true
       }
+      this.formTasteMaterialsData.Resource = "taste"
       
     },
 
 
     selectTasteQuery(index) {
+      console.log(index)
       if (this.tasteList[index] === 'undefined' || this.tasteList[index] == null || this.tasteList[index] === ''){
         this.tasteIdIsDisabled = false
-        this.formTasteData.TasteId = '' 
-        this.formTasteData.Taste = ''
         this.formTasteData.Action = ''
+        this.formTasteData.PotTypeId = ''
+        this.tasteMaterilsCrateDisabled = false
+        this.formTasteData.TasteMaterialArr = []
       }else{
         this.formTasteData.TasteId = this.tasteList[index].TasteId 
         this.formTasteData.Taste = this.tasteList[index].Name
         this.formTasteData.Action = "GET"
         this.tasteIdIsDisabled = true
+        this.formTasteData.PotTypeId = this.tasteList[index].PotTypeId
+        this.formTasteData.TasteMaterialArr = this.tasteList[index].TasteMaterialArr
+        this.tasteMaterilsCrateDisabled = true
+        let arr = []
+        for (let i = 0; i < this.tasteList[index].TasteMaterialArr.length;i++){
+          this.tasteList[index].TasteMaterialArr[i].Action = 'GET'
+          arr.push(this.tasteList[index].TasteMaterialArr[i].Name+this.tasteList[index].TasteMaterialArr[i].Dosage+this.tasteList[index].TasteMaterialArr[i].Unit)
+        }
+        this.tasteMaterialDynamicTags.push(arr.join('|'))
       }
     
     },
@@ -376,59 +462,80 @@ export default {
                     this.materialUnitDisabled = false
                     this.materialWaterLineIsDisabled =  false
                     this.materialStationDisabled=  false
-                    this.formMertialsData.Dosage = 0;
-                    this.formMertialsData.Unit = '';
-                    this.formMertialsData.Station = '';
-                    this.formMertialsData.WaterLine = 0;
-                    this.formMertialsData.Action = ""
+                    this.formMertialsData.Dosage = 0
+                    // this.formMertialsData.Unit = ''
+                    // this.formMertialsData.Station = 
+                    this.formMertialsData.WaterLine = 0
+                    this.formMertialsData.Action = ''
+                    this.formMertialsData.PotTypeId = ''
        }else{
-                    this.formMertialsData.Dosage = this.materialList[index].Dosage;
-                    this.formMertialsData.Unit = this.materialList[index].Unit;
-                    this.formMertialsData.Station = this.materialList[index].Station;
-                    this.formMertialsData.WaterLine = this.materialList[index].WaterLine;
+                    this.formMertialsData.Name =  this.materialList[index].Name
+                    this.formMertialsData.Dosage = this.materialList[index].Dosage
+                    this.formMertialsData.Unit = this.materialList[index].Unit
+                    this.formMertialsData.Station = this.materialList[index].Station
+                    this.formMertialsData.WaterLine = this.materialList[index].WaterLine
+                    this.formMertialsData.PotTypeId = this.materialList[index].PotTypeId
                     this.formMertialsData.Action = "GET"
                     this.materialDosageDisabled = true
                     this.materialUnitDisabled = true
                     this.materialWaterLineIsDisabled =  true
                     this.materialStationDisabled=  true
         }
+        this.formMertialsData.Resource = "material"
     },
 
     /**
        * 打开创建物料对话框
        */
        handleMaterialsCreate() {
-        this.searchMatrialList()
+        if (this.formData.PotTypeId === '' || this.formData.PotTypeId == undefined || this.formData.PotTypeId === null ){
+          message_error('请先选择锅型')
+          return
+        }
+        this.searchMatrialList('material')
         this.createMaterialsDialogVisible = true;
-        this.materialParams.keyword = ''
       },
 
-      searchMatrialList() {
-      Recipe.search_index(this.materialParams)
+      /**
+       * 打开创建口味物料对话框
+       */
+       handleTasteMaterialsCreate() {
+        this.searchMatrialList('taste')
+        this.createTasteMaterialsDialogVisible = true;
+      },
+
+      searchMatrialList(resource) {
+      Recipe.search_index({pot_type_id: this.formData.PotTypeId,resource: resource})
             .then(({data}) => {
               if (data.code == 200) {
                 this.materialList = data.data
               }
             })
     },
+
+
       /**
        * 打开创建口味对话框
        */
        handleTasteCreate() {
+        if (this.formData.PotTypeId === '' || this.formData.PotTypeId == undefined || this.formData.PotTypeId === null ){
+          message_error('请先选择锅型')
+          return
+        }
         this.getTasteList()
-        this.searchMatrialList()
         this.createTasteDialogVisible = true;
         this.materialParams.keyword = ''
       },
 
       getTasteList() {
-        Recipe.search_taste({})
+        Recipe.search_taste({pot_type_id: this.formData.PotTypeId})
             .then(({data}) => {
               if (data.code == 200) {
                   this.tasteList = data.data;
               }
             })
       },
+
     
     getList() {
         Recipe.page(this.params)
@@ -480,6 +587,7 @@ export default {
         message_error("请选择设备")
         return
       }
+      this.onSendToMQTTLoading = true;
       Recipe.sendToMQTT({access_token: this.sendToMQTTData[0],asset_id: this.sendToMQTTData[1]})
         .then(({data}) => {
           if (data.code == 200) {
@@ -490,6 +598,10 @@ export default {
             this.deviceList = []
             this.sendToMQTTData =  []
             this.dialogSendToMQVisible = false
+            this.onSendToMQTTLoading = true;
+          } else {
+            message_error("下发失败")
+            this.onSendToMQTTLoading = false;
           }
         })
     },
@@ -503,14 +615,20 @@ export default {
         .then(({data}) => {
           if (data.code == 200) {
             this.formData = data.data.data[0]
+            // this.formTasteData.TasteMaterialArr = data.data.data[0].TasteMaterialArr
             this.dynamicTags = data.data.data[0].Materials.split('\n')
-            this.tasteDynamicTags = data.data.data[0].Taste.split('\n')
+            if (data.data.data[0].Taste === null || data.data.data[0].Taste === '') {
+              this.tasteDynamicTags = []
+            }else{
+              this.tasteDynamicTags = data.data.data[0].Taste.split('\n')
+            }
+            
           }
         })
       this.dialogVisible = true
     },
     handleDelete(row) {
-      Recipe.del({ id: row.Id })
+      Recipe.del({ id: row.Id,pot_type_id:row.PotTypeId })
         .then(({data}) => {
           if (data.code == 200) {
             this.getList();
@@ -531,61 +649,122 @@ export default {
     onTasteDialogCancel() {
       this.formTasteData = {}
       this.createTasteDialogVisible = false
-      this.materialParams.keyword = ''
+    },
+    onTasteMaterialDialogCancel() {
+      this.formTasteMaterialsData = {}
+      this.createTasteMaterialsDialogVisible = false
+      this.tasteMaterialDynamicTags = []
     },
     onMaterialDialogSubmit() {
       var tmpMaterialData = '';
-      if (this.formMertialsData.Action !== "GET") {
-        tmpMaterialData = this.formMertialsData.Name+this.formMertialsData.Dosage+this.formMertialsData.Unit+this.formMertialsData.WaterLine
-      } else{
-        tmpMaterialData = this.formMertialsData.Name
+      tmpMaterialData = this.formMertialsData.Name+this.formMertialsData.Dosage+this.formMertialsData.Unit
+      if (this.formMertialsData.Name === 'undefined' || this.formMertialsData.Name == null || this.formMertialsData.Name === '') {
+        message_error("物料参数不能为空")
+        return
       }
-      
+      if (this.formMertialsData.Dosage === 'undefined' || this.formMertialsData.Dosage == null || this.formMertialsData.Dosage === '') {
+        message_error("物料参数不能为空")
+        return
+      }
+      if (this.formMertialsData.Unit === 'undefined' || this.formMertialsData.Unit == null || this.formMertialsData.Unit === '') {
+        message_error("物料参数不能为空")
+        return
+      }
       this.dynamicTags.push(tmpMaterialData)
       this.Materials.push(tmpMaterialData)
       if (this.formData.MaterialArr === 'undefined' || this.formData.MaterialArr == null || this.formData.MaterialArr === '') {
         this.formData.MaterialArr = []
       }
+      this.formMertialsData.PotTypeId = this.formData.PotTypeId
       this.formData.MaterialArr.unshift(this.formMertialsData)
       this.formMertialsData = {}
       this.createMaterialsDialogVisible = false
       this.materialParams.keyword = ''
-      console.log(this.formData.MaterialArr)
     },
+
+
+    onTasteMaterialDialogSubmit() {
+      var tmpMaterialData = '';
+      tmpMaterialData = this.formTasteMaterialsData.Name+this.formTasteMaterialsData.Dosage+this.formTasteMaterialsData.Unit
+      if (this.formTasteMaterialsData.Name === 'undefined' || this.formTasteMaterialsData.Name == null || this.formTasteMaterialsData.Name === '') {
+        message_error("物料参数不能为空")
+        return
+      }
+      if (this.formTasteMaterialsData.Dosage === 'undefined' || this.formTasteMaterialsData.Dosage == null || this.formTasteMaterialsData.Dosage === '') {
+        message_error("物料参数不能为空")
+        return
+      }
+      if (this.formTasteMaterialsData.Unit === 'undefined' || this.formTasteMaterialsData.Unit == null || this.formTasteMaterialsData.Unit === '') {
+        message_error("物料参数不能为空")
+        return
+      }
+      this.tasteMaterialDynamicTags.unshift(tmpMaterialData)
+      this.TasteMaterials.push(tmpMaterialData)
+
+      if (this.formTasteData.TasteMaterialArr === 'undefined' || this.formTasteData.TasteMaterialArr == null || this.formTasteData.TasteMaterialArr === '') {
+        
+        this.formTasteData.TasteMaterialArr = []
+      }
+      this.formTasteMaterialsData.PotTypeId = this.formData.PotTypeId
+      this.formTasteData.TasteMaterialArr.push(this.formTasteMaterialsData)
+    
+      this.formTasteMaterialsData = {}
+      this.createTasteMaterialsDialogVisible = false
+    },
+
+
     onTasteDialogSubmit() {
-      var tmpTasteData = '';
-      if (this.formTasteData.Action !== "GET") {
-        tmpTasteData  = this.formTasteData.Taste+":"+this.formTasteData.Material+this.formTasteData.Dosage+this.formTasteData.Unit
-        if (this.formData.MaterialArr === 'undefined' || this.formData.MaterialArr == null || this.formData.MaterialArr === '') {
-        this.formData.MaterialArr = []
+      if (this.formTasteData.TasteId === 'undefined' || this.formTasteData.TasteId == null || this.formTasteData.TasteId === '') {
+        message_error("口味参数不能为空")
+        return
       }
-      this.formMertialsData.Name = this.formTasteData.Material
-      this.formMertialsData.Dosage = this.formTasteData.Dosage
-      this.formMertialsData.Unit = this.formTasteData.Unit
-      this.formMertialsData.WaterLine = this.formTasteData.WaterLine
-      this.formMertialsData.Station = this.formTasteData.Station
-      this.formMertialsData.Action = "Taste"
-      this.formData.MaterialArr.unshift(this.formMertialsData)
-      }else{
-        tmpTasteData  = this.formTasteData.Taste+":"+this.formTasteData.Material
-      }
-      this.tasteDynamicTags.push(tmpTasteData);
-      this.Taste.push(tmpTasteData)
-      if ( this.formData.TasteArr === 'undefined' || this.formData.TasteArr == null || this.formData.TasteArr === '') {
-        this.formData.TasteArr = []
-      }
-      this.formData.Taste = tmpTasteData
-      this.formData.TasteArr.unshift(this.formTasteData)
-      this.formTasteData = {}
-      this.formMertialsData = {}
-      this.createTasteDialogVisible = false
+      // if (this.formTasteData.Taste === 'undefined' || this.formTasteData.Taste == null || this.formTasteData.Taste === '') {
+      //   message_error("物料参数不能为空")
+      //   return
+      // }
+      Recipe.check_taste({ taste_id: this.formTasteData.TasteId,action:this.formTasteData.Action ,pot_type_id: this.formData.PotTypeId})
+              .then(({data}) => {
+                   if (data.code == 200) {
+                      if (data.data.status === "EXIST") {
+                        message_error('Pos口味ID已存在');
+                      }else{
+                        
+                        var tmpTasteData = ''
+                        if (this.tasteMaterialDynamicTags.length > 0 ) {
+                          tmpTasteData  = this.formTasteData.Taste+":"+this.tasteMaterialDynamicTags.join('|')
+                        }else{
+                          tmpTasteData  = this.formTasteData.Taste
+                        }
+                       
+                      
+                        this.tasteDynamicTags.push(tmpTasteData);
+                        this.Taste.push(tmpTasteData)
+                        if ( this.formData.TasteArr === 'undefined' || this.formData.TasteArr == null || this.formData.TasteArr === '') {
+                           this.formData.TasteArr = []
+                        }
+                      
+                        this.formTasteData.PotTypeId = this.formData.PotTypeId
+                        console.log(this.formTasteData)
+                        this.formData.TasteArr.push(this.formTasteData)
+                        this.formData.Taste = tmpTasteData
+
+                    
+                        this.formTasteData = {}
+                        this.formMertialsData = {}
+                        this.formTasteMaterialsData = {}
+                        this.tasteMaterialDynamicTags = []
+                        this.createTasteDialogVisible = false
+      
+                      }
+                    }
+            })
+
+      
     },
 
     onSubmit() {
       var materialCount = this.formData.MaterialArr.length
-      var tasteCount = this.formData.TasteArr.length
       var count = 0
-      var deleteCount = 0
       if (materialCount == 0)  {
         message_error("请添加物料")
         return
@@ -600,65 +779,60 @@ export default {
         return
       }
 
-      for (var i = 0; i < tasteCount; i++ ) {
-                    if (this.formData.TasteArr[i].Operate == "delete") {
-                      deleteCount ++
-                    }
-      }
-
-      if (deleteCount == tasteCount) {
-        message_error("请添加口味")
-        return
-      }
-      
-      if (tasteCount == 0)  {
-        message_error("请添加口味")
-        return
-      }
         this.formData.Materials = this.dynamicTags
         this.formData.Taste = this.tasteDynamicTags
+        this.formData.TasteMaterials = this.tasteMaterialDynamicTags
       Recipe.saveOrUpdate(this.formData.Id ? "edit":"add", this.formData)
             .then(({ data }) => {
               if (data.code == 200) {
                 this.dialogVisible = false
                 this.dynamicTags = []
                 this.tasteDynamicTags =  []
+                this.tasteMaterialDynamicTags = []
                 this.Materials = []
                 this.Taste = []
+                this.TasteMaterials = []
                 message_success("操作成功")
                 this.getList();
               }
             })
     },
     selectedPotType(index){
-      console.log(index)
       this.formData.SoupStandard = this.potTypeList[index].SoupStandard
       this.formData.PotTypeId = this.potTypeList[index].PotTypeId
       this.formData.PotTypeName = this.potTypeList[index].Name
     },
     handleClose(tag,index) {
-      console.log(tag,index)
-      console.log(this.formData.MaterialArr)
+      
         this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
         if ( this.formData.MaterialArr[index].Id === 'undefined' || this.formData.MaterialArr[index].Id == null || this.formData.MaterialArr[index].Id === '') {
-          console.log(1111)
         } else { 
-          console.log(2222)
           this.formData.MaterialArr[index].Operate = "delete"
         }
-        console.log(this.formData.MaterialArr)
       },
-    handleTasteClose(tag,index) {
-      console.log(tag,index)
-      console.log(this.formData.TasteArr)
-      if ( this.formData.TasteArr[index].Id === 'undefined' || this.formData.TasteArr[index].Id == null || this.formData.TasteArr[index].Id === '') {
-        console.log(1111)
+      handleTasteClose(tag,_index) {
+      
+        this.tasteDynamicTags.splice(this.tasteDynamicTags.indexOf(tag), 1);
+        if (this.tasteDynamicTags.length == 0){
+          
+        }
+         this.formData.TasteArr[_index].Operate = 'delete'
+         for (let i = 0; i < this.formData.TasteArr[_index].TasteMaterialArr; i++) {
+            this.formData.TasteArr[_index].TasteMaterialArr[i].Operate = 'delete'
+         }
+         console.log(this.formData.TasteArr)
+      },
+      handleTasteMaterialClose(tag,index) {
+        if (this.formTasteData.TasteMaterialArr[index].Action == 'GET') {
+          message_error("无法删除");
+          return
+        }
+      if ( this.formTasteData.TasteMaterialArr[index].Id === 'undefined' || this.formTasteData.TasteMaterialArr[index].Id == null || this.formTasteData.TasteMaterialArr[index].Id === '') {
     } else { 
-      console.log(2222)
-      this.formData.TasteArr[index].Operate = "delete"
+      this.formTasteData.TasteMaterialArr[index].Operate = "delete"
     }
-    this.tasteDynamicTags.splice(this.tasteDynamicTags.indexOf(tag), 1);
-    console.log(this.formData.TasteArr)
+    this.tasteMaterialDynamicTags.splice(this.tasteMaterialDynamicTags.indexOf(tag), 1);
+
     }
   }
 }
