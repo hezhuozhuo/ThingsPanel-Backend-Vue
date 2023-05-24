@@ -451,7 +451,12 @@ export default {
           this.tasteList[index].TasteMaterialArr[i].Action = 'GET'
           arr.push(this.tasteList[index].TasteMaterialArr[i].Name+this.tasteList[index].TasteMaterialArr[i].Dosage+this.tasteList[index].TasteMaterialArr[i].Unit)
         }
-        this.tasteMaterialDynamicTags.push(arr.join('|'))
+        if (arr.length != 0) {
+          this.tasteMaterialDynamicTags = arr
+        }else{
+          this.tasteMaterialDynamicTags = []
+        }
+        
       }
     
     },
@@ -649,6 +654,8 @@ export default {
     onTasteDialogCancel() {
       this.formTasteData = {}
       this.createTasteDialogVisible = false
+      this.tasteMaterialDynamicTags = []
+      console.log(this.tasteMaterialDynamicTags)
     },
     onTasteMaterialDialogCancel() {
       this.formTasteMaterialsData = {}
