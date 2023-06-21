@@ -375,6 +375,7 @@ export default {
             this.tableData = data.data.data
             this.tableData.forEach(item => {
               item.Materials = item.MaterialArr.map(item => item.Name + item.Dosage + item.Unit).join('\n')
+              item.Taste = item.TasteArr.map(item => item.Name).join(',')
             })
             console.log(this.tableData);
           }
