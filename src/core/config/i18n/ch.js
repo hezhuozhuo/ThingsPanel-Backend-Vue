@@ -1745,5 +1745,116 @@ export const locale = {
       START: "启动",
       SUSPENDED: "暂停",
     },
+  },
+  POTTYPE: {
+    /**
+    * 锅型管理
+    */
+    POTTYPE_MANAGEMENT: {
+      POTTYPRLIST: "锅型列表",
+      CREATEPOTTYPE: "创建锅型",
+      POTTYPEMANAGEMENT: "锅型管理",
+      POTTYPEID: "锅型ID",
+      POTNAME: "锅型名称",
+      POTIMAGE: "图片",
+      EDIT: "编辑",
+      DELETE: "删除",
+      OPERATION: "操作"
+    },
+    /**
+     * 添加锅型
+     */
+    POTTYPE_ADD: {
+      CREATEPOT: "创建锅型",
+      POTNAME: "锅型名称",
+      POTID: "锅型ID",
+      POTIMAGE: "图片",
+      CONFIRM: "确定",
+      CHOOSE_COVER: "选择图片",
+      SOUPSTANDARD: "加汤水位线标准",
+      PLACEHOLDER1: "锅型名称不能为空",
+
+    },
+  },
+  RECIPEMANAGEMENT: {
+    CREATERECIPE: "创建配方",
+    MATERIAL: "添加锅底",
+    ADDMATERIAL: "添加物料",
+    ADDTASTE: "添加口味",
+    RECIPE_LIST: {
+      RECIPTLIST: "配方列表",
+      BOTTOMPOTID: "锅底ID",
+      BOTTOMPOT: "锅底名称",
+      POTTYPID: "锅型ID",
+      POTTYPE: "锅型名称",
+      MATERIAL: "物料",
+      TASTE: "口味",
+      BOTTOMPROPERTIES: "锅底属性",
+      EDIT: "编辑",
+      DELETE: "删除",
+      OPERATION: "操作"
+    },
+    RECIPE_ADD: {
+      ADDMATERIAL: "添加物料",
+      ADDTASTE: "添加新口味",
+      ADDRECIPE: "添加配方",
+      BOTTOMPOTID: "锅底ID",
+      BOTTOMPOT: "锅底名称",
+      POTTYPID: "锅型ID",
+      POTTYPE: "锅型名称",
+      MATERIAL: "物料名称",
+      TASTE: "口味",
+      BOTTOMPROPERTIES: "锅底属性",
+      SOUPSTANDARD: "加汤标准",
+      CURRENTADDSOUPWATERLINE: "当前所有物料水位线"
+    },
+    RECIPE_EDIT: {
+      EDITMATERIAL: "编辑物料",
+      ADDTASTE: "添加新口味",
+      ADDRECIPE: "添加配方",
+      BOTTOMPOTID: "锅底ID",
+      BOTTOMPOT: "锅底名称",
+      POTTYPID: "锅型ID",
+      POTTYPE: "锅型名称",
+      MATERIAL: "物料名称",
+      TASTE: "口味",
+      BOTTOMPROPERTIES: "锅底属性",
+      SOUPSTANDARD: "锅型加汤水位标准",
+      CURRENTWATERLINE: "当前所有物料水位线"
+    },
+    ADD_MATERIAL: {
+      MATERIAL: "物料名称",
+      DOSAGE: "用量",
+      UNIT: "单位",
+      ADDSOUPWATERLINE: "加汤水位线",
+      STATION: "工位"
+    },
+    ADD_TASTE: {
+      TASTE: "口味名称",
+      TASTEID: "POS口味ID",
+      TASTESYSTEMID: "口味系统ID",
+      MATRIAL: "物料名称",
+      DOSAGE: "用量",
+      UNIT: "单位",
+      ADDSOUPWATERLINE: "加汤水位线",
+      STATION: "工位"
+    },
+  },
+  SOUPDATAMANGEMENT: {
+    ADDSOUPDATAMANAGME: "加汤数据管理",
+    SHOPNAMEKEYS: "店铺搜索",
+    SOUPDATALIST: {
+      NO: "序号",
+      SHOPSELECT: "筛选",
+      SHOPNAME: "店铺名",
+      ORDERID: "订单号",
+      BOTTOMNAME: "锅底名称",
+      TABLENUMBER: "桌号",
+      ORDERTIME: "订单时间",
+      STARTADDSOUPTIME: "开始加汤时间",
+      ADDSOUPFINISHTIME: "加汤完成时间",
+      ADDMATERIALFINISHTIME: "加料完成时间",
+      POTFINISHTIME: "传锅完成时间"
+    }
   }
 };
