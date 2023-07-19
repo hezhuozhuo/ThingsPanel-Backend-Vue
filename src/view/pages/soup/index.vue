@@ -17,6 +17,31 @@
                 @clear="getList()">
             </el-input>
           </el-col>
+
+          <el-col :span="4">
+            <el-input
+                v-model="params.table_number"
+                :placeholder="$t('SOUPDATAMANGEMENT.SOUPDATALIST.TABLENUMBER')"
+                clearable
+                @keydown.enter.native="getList()"
+                @clear="getList()">
+            </el-input>
+          </el-col>
+
+          <el-col :span="6">
+            <el-date-picker
+              class="w-100"
+              v-model="params.order_time"
+              :picker-options="DatePickerOptions"
+              :clearable="true"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              @change="getList()"
+              type="datetimerange"
+              start-placeholder="订单开始日期"
+              :range-separator="$t('DATA_MANAGEMENT.PLACEHOLDER6')"
+              end-placeholder="订单结束日期">
+          </el-date-picker>
+          </el-col>
       
           <el-col :span="5">
             <div>
@@ -38,13 +63,13 @@
           <el-table-column :label="$t('SOUPDATAMANGEMENT.SOUPDATALIST.SHOPNAME')" prop="shop_name"></el-table-column>
       
           <!-- 订单号 -->
-          <el-table-column :label="$t('SOUPDATAMANGEMENT.SOUPDATALIST.ORDERID')" prop="order_sn"></el-table-column>
+          <!-- <el-table-column :label="$t('SOUPDATAMANGEMENT.SOUPDATALIST.ORDERID')" prop="order_sn"></el-table-column> -->
 
           <!-- 锅底名称 -->
           <el-table-column :label="$t('SOUPDATAMANGEMENT.SOUPDATALIST.BOTTOMNAME')"  prop="bottom_pot"></el-table-column>
 
           <!-- 桌号 -->
-          <el-table-column :label="$t('SOUPDATAMANGEMENT.SOUPDATALIST.TABLENUMBER')" prop="table_number"></el-table-column>
+          <el-table-column :label="$t('SOUPDATAMANGEMENT.SOUPDATALIST.TABLENUMBER')" prop="table_number" width="100"></el-table-column>
       
           <!-- 订单时间 -->
           <el-table-column :label="$t('SOUPDATAMANGEMENT.SOUPDATALIST.ORDERTIME')"  prop="order_time"></el-table-column>
@@ -88,6 +113,7 @@
 <script>
 import TableTitle from "@/components/common/TableTitle.vue";
 import { soup_index, soup_export } from "@/api/soup";;
+import DatePickerOptions from "@/utils/DatePickerOptions";
 import { dateFormat } from "@/utils/tool.js";
 export default {
   components: {TableTitle},
@@ -104,7 +130,8 @@ export default {
         },
         exportVisible: false,
         downloadUrl: "",
-        exporting: false
+        exporting: false,
+        DatePickerOptions: DatePickerOptions
     }
   },
   mounted() {
@@ -114,7 +141,13 @@ export default {
     getList() {
         if(this.loading) return
         this.loading = true
-
+        if (this.params.order_time) {
+          this.params.start_time = this.params.order_time[0];
+          this.params.end_time = this.params.order_time[1];
+        } else {
+          this.params.start_time = "";
+          this.params.end_time = "";
+        }
         soup_index(this.params).then(({data}) => {
             if(data.code === 200) {
                 this.tableData = data.data.data || [];
