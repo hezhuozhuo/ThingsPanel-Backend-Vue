@@ -80,6 +80,8 @@
           <!-- 加汤完成时间 -->
           <el-table-column :label="$t('SOUPDATAMANGEMENT.SOUPDATALIST.ADDSOUPFINISHTIME')" prop="soup_end_time"></el-table-column>
           
+          <!-- 传锅完成时间 -->
+          <el-table-column label="传锅完成时间" prop="turning_pot_end_time"></el-table-column>
         </el-table>
         <!-- 表 end -->
       
