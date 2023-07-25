@@ -30,7 +30,7 @@
 
           <el-col :span="6">
             <el-date-picker
-              class="w-100"
+              class="date-picker w-100"
               v-model="params.order_time"
               :picker-options="DatePickerOptions"
               :clearable="true"
@@ -41,6 +41,7 @@
               :range-separator="$t('DATA_MANAGEMENT.PLACEHOLDER6')"
               end-placeholder="订单结束日期">
           </el-date-picker>
+
           </el-col>
       
           <el-col :span="5">
