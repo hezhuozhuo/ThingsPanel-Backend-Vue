@@ -168,7 +168,8 @@ export default {
     },
     handleExport() {
       this.exportVisible = true;
-      soup_export({ current_page: 1, per_page: 10, limit: this.total})
+      const { start_time, end_time } = this.params;
+      soup_export({ current_page: 1, per_page: 10, limit: this.total, start_time, end_time })
         .then(({ data: result }) => {
           if (result.code === 200) {
             this.downloadUrl = result.data;
